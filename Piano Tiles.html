@@ -1,0 +1,1421 @@
+<html>
+    <head>
+        <title>Piano Tiles</title>
+        <script type="text/javascript">
+			var gamemode = 0; //0 is classic game
+							  //1 is double tiles
+							  //2 is letters mode
+							  //3 is switch mode
+			var classicGameCounter = 0;
+			var sec = 0;
+			var millisec = 0;
+			var mmmsec = 0;
+			var secTimer;
+			var millisecTimer;
+			var mmmsecTimer;
+			var moveDisplayDownTimer;
+			var moveDisplayDownCounter=0;
+			var currentRowKeyCode;
+			var currentRowBlackTile;
+			var letterArray = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+            var letter;
+            var element;
+            var keyCodeArray = [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90]
+            var keyCode;
+            var rowAtBottom=0;
+			var currentRowKeyCode;
+			
+			window.onload=function(){
+				init();
+			}
+			
+			//Main author: Tommy Chao
+			function init(){
+				rowHolder = document.getElementById("rowHolder");
+				rowHolder.style.top = window.getComputedStyle(rowHolder, null).top;
+				row1 = document.getElementById("row1");
+				row1.style.top = window.getComputedStyle(row1, null).top;
+				row2 = document.getElementById("row2");
+				row2.style.top = window.getComputedStyle(row2, null).top;
+				row3 = document.getElementById("row3");
+				row3.style.top = window.getComputedStyle(row3, null).top;
+				row4 = document.getElementById("row4");
+				row4.style.top = window.getComputedStyle(row4, null).top;
+				row5 = document.getElementById("row5");
+				row5.style.top = window.getComputedStyle(row5, null).top;
+				
+			}
+			
+			//Main author: Tommy Chao
+			function startClassicGame(){
+				moveDisplayDownCounter=0;
+				rowAtBottom=0;
+				document.getElementById("display").style.backgroundColor="khaki";
+				resetStyleTops();
+				resetTimer();
+				resetAllTiles();
+			    randomizeAllTiles();
+			}
+			
+			//Main author: Tommy Chao
+			function startDoubleGame(){
+				moveDisplayDownCounter=0;
+				rowAtBottom=0;
+				document.getElementById("display").style.backgroundColor="khaki";
+				resetStyleTops();
+				resetTimer();
+				resetAllTiles();
+			    randomizeAllTiles();
+			}
+			
+			//Main author: Tommy Chao
+			function startLettersGame(){
+				moveDisplayDownCounter=0;
+				rowAtBottom=0;
+				document.getElementById("display").style.backgroundColor="khaki";
+				resetStyleTops();
+				resetTimer();
+				resetAllTiles();
+			    randomizeAllTiles();
+			}
+			
+			//Main author: Tommy Chao
+			function resetStyleTops(){
+				rowHolder.style.top = -300+"px";
+				row1.style.top = 0+"px";
+				row2.style.top = 0+"px";
+				row3.style.top = 0+"px";
+				row4.style.top = 0+"px";
+				row5.style.top = 0+"px";
+			}
+			
+			//Main author: Tommy Chao
+			function resetTimer(){
+				clearInterval(secTimer);
+				clearInterval(millisecTimer);
+				clearInterval(mmmsecTimer);
+				sec = 0;
+				millisec = 0;
+				mmmsec = 0;
+				document.getElementById("seconds").innerHTML = sec;
+				document.getElementById("millisec").innerHTML = millisec;
+				document.getElementById("mmmsec").innerHTML = mmmsec;
+			}
+			
+			//Main author: Jenny Chau
+			function startTimer(){
+				for (var i=1; i<4; i++){
+					if(document.getElementById("tile1"+i).style.backgroundColor=="black"){ //USE DOUBLE EQUALS SIGN
+						resetTimer();
+					}
+				}
+				secTimer = setInterval(function(){
+					sec++;
+					document.getElementById("seconds").innerHTML = sec;
+				}, 1000); 
+				millisecTimer = setInterval(function(){
+					millisec++;
+					if(millisec==10){
+						millisec = 0;
+					}
+					document.getElementById("millisec").innerHTML = millisec;
+				}, 100); 
+				mmmsecTimer = setInterval(function(){
+					mmmsec++;
+					if(mmmsec==10){
+						mmmsec = 0;
+					}
+					document.getElementById("mmmsec").innerHTML = mmmsec;
+				}, 10);
+			}
+			
+			//Main author: Tommy Chao
+			function resetAllTiles(){
+				for (var i=1; i<=5; i++){//the "5" is the number of rows in the game, change it accordingly
+					for (var j=1; j<=4; j++){//the "4" is the number of tiles per row (static)
+						document.getElementById("tile"+i+j).style.backgroundColor="white";
+						document.getElementById("tile"+i+j).innerHTML = "";
+						document.getElementById("tile1"+j).removeEventListener("click", row1BlackTileClicked);
+						document.getElementById("tile2"+j).removeEventListener("click", row2BlackTileClicked);
+						document.getElementById("tile3"+j).removeEventListener("click", row3BlackTileClicked);
+						document.getElementById("tile4"+j).removeEventListener("click", row4BlackTileClicked);
+						document.getElementById("tile5"+j).removeEventListener("click", row5BlackTileClicked);
+						document.getElementById("tile"+i+j).removeEventListener("click", redTileClicked);
+					}
+				}
+				classicGameCounter=0;
+			}
+			
+			function randomizeAllTiles(){
+				for (var i=1; i<=5; i++){//the "5" is the number of rows in the game, change it accordingly
+					var blackTile = parseInt(Math.random()*4+1);//picks a number from 1-4, and makes the corresponding tile black
+					var tileToHit = document.getElementById("tile"+i+blackTile);
+					tileToHit.style.backgroundColor="black";
+					if (gamemode==1){
+						var secondTileCreated = false;
+						while (!secondTileCreated){
+							var blackTile2 = parseInt(Math.random()*4+1);
+							var tile2ToHit = document.getElementById("tile"+i+blackTile2);
+							if(tile2ToHit.style.backgroundColor!="black"){
+								tile2ToHit.style.backgroundColor="black";
+								secondTileCreated = true;
+							}
+						}
+					}
+					if (gamemode==2){
+						element = Math.floor(Math.random()*letterArray.length); //choose a random number that is in the range of the amount of letters in the alphabet
+						letter = letterArray[element]; //random letter is chosen from the array using the random number
+						tileToHit.innerHTML=letter; //sets the innerHTML of the black tile to the letter
+					}
+				}
+				randomizeRow1();
+			}
+			
+			//111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+			//Main author: Tommy Chao
+			function randomizeRow1(){
+				makeRow1RedTiles();
+				if (gamemode==3){
+					var randomizer;
+					randomizer = parseInt(Math.random()*4)+1;
+					if (randomizer==1){
+						makeNewRow1BlackTile();
+					}
+				}
+				for (var j=1; j<=4; j++){
+					if(document.getElementById("tile1"+j).style.backgroundColor=="black"){ //USE DOUBLE EQUALS SIGN
+						document.getElementById("tile1"+j).addEventListener("click", row1BlackTileClicked);
+						document.getElementById("tile1"+j).removeEventListener("click", redTileClicked);
+						if (gamemode==2){
+							if(j==1){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile1"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							else if(j==2){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile1"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}	
+							else if(j==3){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile1"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							else if(j==4){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile1"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							if (document.getElementById("tile1"+j).style.backgroundColor == "white"){
+								document.getElementById("tile1"+j).innerHTML = ""; 
+							}
+						}else {
+							if(j==1){
+								currentRowKeyCode=70;
+								currentRowBlackTile=j;
+							}
+							else if(j==2){
+								currentRowKeyCode=71;
+								currentRowBlackTile=j;
+							}	
+							else if(j==3){
+								currentRowKeyCode=72;
+								currentRowBlackTile=j;
+							}
+							else if(j==4){
+								currentRowKeyCode=74;
+								currentRowBlackTile=j;
+							}
+						}
+					}
+			    }
+			}
+			
+			//Main author: Tommy Chao
+			function makeRow1RedTiles(){
+				for (var j=1; j<=4; j++){
+					var otherTiles = document.getElementById("tile1"+j);
+					otherTiles.addEventListener("click", redTileClicked);
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function row1BlackTileClicked(){
+				if(classicGameCounter==0){
+					if (gamemode!=1)
+						startTimer();
+				}
+				this.style.backgroundColor="gray";
+				this.removeEventListener("click", row1BlackTileClicked);
+				if (gamemode!=1){
+					increaseClassicGameCounter();
+					if(classicGameCounter!=1){
+						row5.style.top = (parseInt(row5.style.top)-750)+"px" //moves row to the top
+						resetRow5Tiles();
+						if(classicGameCounter<29){
+							makeNewRow5BlackTile();
+						}
+					}else {
+						document.getElementById("display").style.backgroundColor="white";
+					}
+					randomizeRow2();
+					moveDisplayDownAndCheckWin();
+				}else {
+					if ((document.getElementById("tile11").style.backgroundColor!="black")&&(document.getElementById("tile12").style.backgroundColor!="black")&&(document.getElementById("tile13").style.backgroundColor!="black")&&(document.getElementById("tile14").style.backgroundColor!="black")){
+						increaseClassicGameCounter();
+						if(classicGameCounter==1){
+							startTimer();
+						};
+						if(classicGameCounter!=1){
+							row5.style.top = (parseInt(row5.style.top)-750)+"px" //moves row to the top
+							resetRow5Tiles();
+							if(classicGameCounter<29){
+								makeNewRow5BlackTile();
+							}
+						}else {
+							document.getElementById("display").style.backgroundColor="white";
+						}
+						randomizeRow2();
+						moveDisplayDownAndCheckWin();
+					}
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function resetRow1Tiles(){
+				for (var j=1; j<=4; j++){//the "4" is the number of tiles per row (static)
+					document.getElementById("tile1"+j).style.backgroundColor="white";
+					document.getElementById("tile1"+j).removeEventListener("click", row1BlackTileClicked);
+					document.getElementById("tile1"+j).removeEventListener("click", redTileClicked);
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function makeNewRow1BlackTile(){
+				for (var j=1; j<=4; j++){
+					document.getElementById("tile1"+j).style.backgroundColor="white"; //USE DOUBLE EQUALS SIGN
+			    }
+				var newBlackTile = parseInt(Math.random()*4+1);//picks a number from 1-4, and makes the tile that is sent to the top black
+				var newTile1ToHit = document.getElementById("tile1"+newBlackTile);
+				newTile1ToHit.style.backgroundColor="black";
+				if ((gamemode==1)&&(classicGameCounter!=0)){
+					var secondTileCreated = false;
+					while (!secondTileCreated){
+						var blackTile2 = parseInt(Math.random()*4+1);
+						var tile2ToHit = document.getElementById("tile1"+blackTile2);
+						if(tile2ToHit.style.backgroundColor!="black"){
+							tile2ToHit.style.backgroundColor="black";
+							secondTileCreated = true;
+						}
+					}
+				}
+				if ((gamemode==2)&&(classicGameCounter!=0)){
+					letter = letterArray[Math.floor(Math.random()*letterArray.length)];
+					element = Math.floor(Math.random()*letterArray.length);
+					letter = letterArray[element];
+					newTile1ToHit.innerHTML=letter;
+				}
+			}
+			
+			
+			//222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222
+			//Main author: Tommy Chao
+			function randomizeRow2(){
+				makeRow2RedTiles();
+				if (gamemode==3){
+					var randomizer;
+					randomizer = parseInt(Math.random()*4)+1;
+					if (randomizer==1){
+						makeNewRow2BlackTile();
+					}
+				}
+				for (var j=1; j<=4; j++){
+					if(document.getElementById("tile2"+j).style.backgroundColor=="black"){ //USE DOUBLE EQUALS SIGN
+						document.getElementById("tile2"+j).addEventListener("click", row2BlackTileClicked);
+						document.getElementById("tile2"+j).removeEventListener("click", redTileClicked);
+						if (gamemode==2){
+							if(j==1){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile2"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							else if(j==2){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile2"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}	
+							else if(j==3){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile2"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							else if(j==4){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile2"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							if (document.getElementById("tile1"+j).style.backgroundColor == "white"){
+								document.getElementById("tile1"+j).innerHTML = ""; 
+							}
+						}else {
+							if(j==1){
+								currentRowKeyCode=70;
+								currentRowBlackTile=j;
+							}
+							else if(j==2){
+								currentRowKeyCode=71;
+								currentRowBlackTile=j;
+							}	
+							else if(j==3){
+								currentRowKeyCode=72;
+								currentRowBlackTile=j;
+							}
+							else if(j==4){
+								currentRowKeyCode=74;
+								currentRowBlackTile=j;
+							}
+						}
+					}
+			    }
+			}
+			
+			//Main author: Tommy Chao
+			function makeRow2RedTiles(){
+				for (var j=1; j<=4; j++){
+					var otherTiles = document.getElementById("tile2"+j);
+					otherTiles.addEventListener("click", redTileClicked);
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function row2BlackTileClicked(){
+				this.style.backgroundColor="gray";
+				this.removeEventListener("click", row2BlackTileClicked);
+				if (gamemode!=1){
+					increaseClassicGameCounter();
+					row1.style.top = (parseInt(row1.style.top)-750)+"px" //moves row to the top
+					resetRow1Tiles();
+					if(classicGameCounter<25){
+						makeNewRow1BlackTile();
+					}
+					randomizeRow3();
+					moveDisplayDownAndCheckWin();
+				}else {
+					if ((document.getElementById("tile21").style.backgroundColor!="black")&&(document.getElementById("tile22").style.backgroundColor!="black")&&(document.getElementById("tile23").style.backgroundColor!="black")&&(document.getElementById("tile24").style.backgroundColor!="black")){
+						increaseClassicGameCounter();
+						row1.style.top = (parseInt(row1.style.top)-750)+"px" //moves row to the top
+						resetRow1Tiles();
+						if(classicGameCounter<25){
+							makeNewRow1BlackTile();
+						}
+						randomizeRow3();
+						moveDisplayDownAndCheckWin();
+					}
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function resetRow2Tiles(){
+				for (var j=1; j<=4; j++){//the "4" is the number of tiles per row (static)
+					document.getElementById("tile2"+j).style.backgroundColor="white";
+					document.getElementById("tile2"+j).removeEventListener("click", row2BlackTileClicked);
+					document.getElementById("tile2"+j).removeEventListener("click", redTileClicked);
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function makeNewRow2BlackTile(){
+				for (var j=1; j<=4; j++){
+					document.getElementById("tile2"+j).style.backgroundColor="white"; //USE DOUBLE EQUALS SIGN
+			    }
+				var newBlackTile = parseInt(Math.random()*4+1);//picks a number from 1-4, and makes the tile that is sent to the top black
+				var newTile2ToHit = document.getElementById("tile2"+newBlackTile);
+				newTile2ToHit.style.backgroundColor="black";
+				if (gamemode==1){
+					var secondTileCreated = false;
+					while (!secondTileCreated){
+						var blackTile2 = parseInt(Math.random()*4+1);
+						var tile2ToHit = document.getElementById("tile2"+blackTile2);
+						if(tile2ToHit.style.backgroundColor!="black"){
+							tile2ToHit.style.backgroundColor="black";
+							secondTileCreated = true;
+						}
+					}
+				}
+				if (gamemode==2){
+					letter = letterArray[Math.floor(Math.random()*letterArray.length)];
+					element = Math.floor(Math.random()*letterArray.length);
+					letter = letterArray[element];
+					newTile2ToHit.innerHTML=letter;
+				}
+			}
+			
+			
+			//3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
+			//Main author: Tommy Chao
+			function randomizeRow3(){
+				makeRow3RedTiles();
+				if (gamemode==3){
+					var randomizer;
+					randomizer = parseInt(Math.random()*4)+1;
+					if (randomizer==1){
+						makeNewRow3BlackTile();
+					}
+				}
+				for (var j=1; j<=4; j++){
+					if(document.getElementById("tile3"+j).style.backgroundColor=="black"){ //USE DOUBLE EQUALS SIGN
+						document.getElementById("tile3"+j).addEventListener("click", row3BlackTileClicked);
+						document.getElementById("tile3"+j).removeEventListener("click", redTileClicked);
+						if (gamemode==2){
+							if(j==1){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile3"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							else if(j==2){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile3"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}	
+							else if(j==3){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile3"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							else if(j==4){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile3"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							if (document.getElementById("tile1"+j).style.backgroundColor == "white"){
+								document.getElementById("tile1"+j).innerHTML = ""; 
+							}
+						}else {
+							if(j==1){
+								currentRowKeyCode=70;
+								currentRowBlackTile=j;
+							}
+							else if(j==2){
+								currentRowKeyCode=71;
+								currentRowBlackTile=j;
+							}	
+							else if(j==3){
+								currentRowKeyCode=72;
+								currentRowBlackTile=j;
+							}
+							else if(j==4){
+								currentRowKeyCode=74;
+								currentRowBlackTile=j;
+							}
+						}
+					}
+			    }
+			}
+			
+			//Main author: Tommy Chao
+			function makeRow3RedTiles(){
+				for (var j=1; j<=4; j++){
+					var otherTiles = document.getElementById("tile3"+j);
+					otherTiles.addEventListener("click", redTileClicked);
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function row3BlackTileClicked(){
+				this.style.backgroundColor="gray";
+				this.removeEventListener("click", row3BlackTileClicked);
+				if (gamemode!=1){
+					increaseClassicGameCounter();
+					row2.style.top = (parseInt(row2.style.top)-750)+"px" //moves row to the top
+					resetRow2Tiles();
+					if(classicGameCounter<26){
+						makeNewRow2BlackTile();
+					}
+					randomizeRow4();
+					moveDisplayDownAndCheckWin();
+				}else {
+					if ((document.getElementById("tile31").style.backgroundColor!="black")&&(document.getElementById("tile32").style.backgroundColor!="black")&&(document.getElementById("tile33").style.backgroundColor!="black")&&(document.getElementById("tile34").style.backgroundColor!="black")){
+						increaseClassicGameCounter();
+						row2.style.top = (parseInt(row2.style.top)-750)+"px" //moves row to the top
+						resetRow2Tiles();
+						if(classicGameCounter<26){
+							makeNewRow2BlackTile();
+						}
+						randomizeRow4();
+						moveDisplayDownAndCheckWin();
+					}
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function resetRow3Tiles(){
+				for (var j=1; j<=4; j++){//the "4" is the number of tiles per row (static)
+					document.getElementById("tile3"+j).style.backgroundColor="white";
+					document.getElementById("tile3"+j).removeEventListener("click", row3BlackTileClicked);
+					document.getElementById("tile3"+j).removeEventListener("click", redTileClicked);
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function makeNewRow3BlackTile(){
+				for (var j=1; j<=4; j++){
+					document.getElementById("tile3"+j).style.backgroundColor="white"; //USE DOUBLE EQUALS SIGN
+			    }
+				var newBlackTile = parseInt(Math.random()*4+1);//picks a number from 1-4, and makes the tile that is sent to the top black
+				var newTile3ToHit = document.getElementById("tile3"+newBlackTile);
+				newTile3ToHit.style.backgroundColor="black";
+				if (gamemode==1){
+					var secondTileCreated = false;
+					while (!secondTileCreated){
+						var blackTile2 = parseInt(Math.random()*4+1);
+						var tile2ToHit = document.getElementById("tile3"+blackTile2);
+						if(tile2ToHit.style.backgroundColor!="black"){
+							tile2ToHit.style.backgroundColor="black";
+							secondTileCreated = true;
+						}
+					}
+				}
+				if (gamemode==2){
+					letter = letterArray[Math.floor(Math.random()*letterArray.length)];
+					element = Math.floor(Math.random()*letterArray.length);
+					letter = letterArray[element];
+					newTile3ToHit.innerHTML=letter;
+				}
+			}
+			
+			
+			//444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
+			//Main author: Tommy Chao
+			function randomizeRow4(){
+				makeRow4RedTiles();
+				if (gamemode==3){
+					var randomizer;
+					randomizer = parseInt(Math.random()*4)+1;
+					if (randomizer==1){
+						makeNewRow4BlackTile();
+					}
+				}
+				for (var j=1; j<=4; j++){
+					if(document.getElementById("tile4"+j).style.backgroundColor=="black"){ //USE DOUBLE EQUAL SIGN
+						document.getElementById("tile4"+j).addEventListener("click", row4BlackTileClicked);
+						document.getElementById("tile4"+j).removeEventListener("click", redTileClicked);
+						if (gamemode==2){
+							if(j==1){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile4"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							else if(j==2){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile4"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}	
+							else if(j==3){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile4"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							else if(j==4){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile4"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							if (document.getElementById("tile1"+j).style.backgroundColor == "white"){
+								document.getElementById("tile1"+j).innerHTML = ""; 
+							}
+						}else {
+							if(j==1){
+								currentRowKeyCode=70;
+								currentRowBlackTile=j;
+							}
+							else if(j==2){
+								currentRowKeyCode=71;
+								currentRowBlackTile=j;
+							}	
+							else if(j==3){
+								currentRowKeyCode=72;
+								currentRowBlackTile=j;
+							}
+							else if(j==4){
+								currentRowKeyCode=74;
+								currentRowBlackTile=j;
+							}
+						}
+					}
+			    }
+			}
+			
+			//Main author: Tommy Chao
+			function makeRow4RedTiles(){
+				for (var j=1; j<=4; j++){
+					var otherTiles = document.getElementById("tile4"+j);
+					otherTiles.addEventListener("click", redTileClicked);
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function row4BlackTileClicked(){
+				this.style.backgroundColor="gray";
+				this.removeEventListener("click", row4BlackTileClicked);
+				if (gamemode!=1){
+					increaseClassicGameCounter();
+					row3.style.top = (parseInt(row3.style.top)-750)+"px" //moves row to the top
+					resetRow3Tiles();
+					if(classicGameCounter<27){
+						makeNewRow3BlackTile();
+					}
+					randomizeRow5();
+					moveDisplayDownAndCheckWin();
+				}else {
+					if ((document.getElementById("tile41").style.backgroundColor!="black")&&(document.getElementById("tile42").style.backgroundColor!="black")&&(document.getElementById("tile43").style.backgroundColor!="black")&&(document.getElementById("tile44").style.backgroundColor!="black")){
+						increaseClassicGameCounter();
+						row3.style.top = (parseInt(row3.style.top)-750)+"px" //moves row to the top
+						resetRow3Tiles();
+						if(classicGameCounter<27){
+							makeNewRow3BlackTile();
+						}
+						randomizeRow5();
+						moveDisplayDownAndCheckWin();
+					}
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function resetRow4Tiles(){
+				for (var j=1; j<=4; j++){//the "4" is the number of tiles per row (static)
+					document.getElementById("tile4"+j).style.backgroundColor="white";
+					document.getElementById("tile4"+j).removeEventListener("click", row4BlackTileClicked);
+					document.getElementById("tile4"+j).removeEventListener("click", redTileClicked);
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function makeNewRow4BlackTile(){
+				for (var j=1; j<=4; j++){
+					document.getElementById("tile4"+j).style.backgroundColor="white"; //USE DOUBLE EQUALS SIGN
+			    }
+				var newBlackTile = parseInt(Math.random()*4+1);//picks a number from 1-4, and makes the tile that is sent to the top black
+				var newTile4ToHit = document.getElementById("tile4"+newBlackTile);
+				newTile4ToHit.style.backgroundColor="black";
+				if (gamemode==1){
+					var secondTileCreated = false;
+					while (!secondTileCreated){
+						var blackTile2 = parseInt(Math.random()*4+1);
+						var tile2ToHit = document.getElementById("tile4"+blackTile2);
+						if(tile2ToHit.style.backgroundColor!="black"){
+							tile2ToHit.style.backgroundColor="black";
+							secondTileCreated = true;
+						}
+					}
+				}
+				if (gamemode==2){
+					letter = letterArray[Math.floor(Math.random()*letterArray.length)];
+					element = Math.floor(Math.random()*letterArray.length);
+					letter = letterArray[element];
+					newTile4ToHit.innerHTML=letter;
+				}
+			}
+			
+			
+			//55555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555
+			//Main author: Tommy Chao
+			function randomizeRow5(){
+				makeRow5RedTiles();
+				if (gamemode==3){
+					var randomizer;
+					randomizer = parseInt(Math.random()*4)+1;
+					if (randomizer==1){
+						makeNewRow5BlackTile();
+					}
+				}
+				for (var j=1; j<=4; j++){
+					if(document.getElementById("tile5"+j).style.backgroundColor=="black"){ //USE DOUBLE EQUALS SIGN
+						document.getElementById("tile5"+j).addEventListener("click", row5BlackTileClicked);
+						document.getElementById("tile5"+j).removeEventListener("click", redTileClicked);
+						if (gamemode==2){
+							if(j==1){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile5"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							else if(j==2){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile5"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}	
+							else if(j==3){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile5"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							else if(j==4){
+								currentRowKeyCode=keyCodeArray[letterArray.indexOf(document.getElementById("tile5"+j).innerHTML)];
+								currentRowBlackTile=j;
+							}
+							if (document.getElementById("tile1"+j).style.backgroundColor == "white"){
+								document.getElementById("tile1"+j).innerHTML = ""; 
+							}
+						}else {
+							if(j==1){
+								currentRowKeyCode=70;
+								currentRowBlackTile=j;
+							}
+							else if(j==2){
+								currentRowKeyCode=71;
+								currentRowBlackTile=j;
+							}	
+							else if(j==3){
+								currentRowKeyCode=72;
+								currentRowBlackTile=j;
+							}
+							else if(j==4){
+								currentRowKeyCode=74;
+								currentRowBlackTile=j;
+							}
+						}
+					}
+			    }
+			}
+			
+			//Main author: Tommy Chao
+			function makeRow5RedTiles(){
+				for (var j=1; j<=4; j++){
+					var otherTiles = document.getElementById("tile5"+j);
+					otherTiles.addEventListener("click", redTileClicked);
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function row5BlackTileClicked(){
+				this.style.backgroundColor="gray";
+				this.removeEventListener("click", row5BlackTileClicked);
+				if (gamemode!=1){
+					increaseClassicGameCounter();
+					row4.style.top = (parseInt(row4.style.top)-750)+"px" //moves row to the top
+					resetRow4Tiles();
+					if(classicGameCounter<28){
+						makeNewRow4BlackTile();
+					}
+					randomizeRow1();
+					moveDisplayDownAndCheckWin();
+				}else {
+					if ((document.getElementById("tile51").style.backgroundColor!="black")&&(document.getElementById("tile52").style.backgroundColor!="black")&&(document.getElementById("tile53").style.backgroundColor!="black")&&(document.getElementById("tile54").style.backgroundColor!="black")){
+						increaseClassicGameCounter();
+						row4.style.top = (parseInt(row4.style.top)-750)+"px" //moves row to the top
+						resetRow4Tiles();
+						if(classicGameCounter<28){
+							makeNewRow4BlackTile();
+						}
+						randomizeRow1();
+						moveDisplayDownAndCheckWin();
+					}
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function resetRow5Tiles(){
+				for (var j=1; j<=4; j++){//the "4" is the number of tiles per row (static)
+					document.getElementById("tile5"+j).style.backgroundColor="white";
+					document.getElementById("tile5"+j).removeEventListener("click", row5BlackTileClicked);
+					document.getElementById("tile5"+j).removeEventListener("click", redTileClicked);
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function makeNewRow5BlackTile(){
+				for (var j=1; j<=4; j++){
+					document.getElementById("tile5"+j).style.backgroundColor="white"; //USE DOUBLE EQUALS SIGN
+			    }
+				var newBlackTile = parseInt(Math.random()*4+1);//picks a number from 1-4, and makes the tile that is sent to the top black
+				var newTile5ToHit = document.getElementById("tile5"+newBlackTile);
+				newTile5ToHit.style.backgroundColor="black";
+				if (gamemode==1){
+					var secondTileCreated = false;
+					while (!secondTileCreated){
+						var blackTile2 = parseInt(Math.random()*4+1);
+						var tile2ToHit = document.getElementById("tile5"+blackTile2);
+						if(tile2ToHit.style.backgroundColor!="black"){
+							tile2ToHit.style.backgroundColor="black";
+							secondTileCreated = true;
+						}
+					}
+				}
+				if (gamemode==2){
+					letter = letterArray[Math.floor(Math.random()*letterArray.length)];
+					element = Math.floor(Math.random()*letterArray.length);
+					letter = letterArray[element];
+					newTile5ToHit.innerHTML=letter;
+				}
+			}
+			
+			
+			//---------------------------------------------------------------------------------------------------------------------------------------
+			//Main author: Tommy Chao
+			function increaseClassicGameCounter(){
+				classicGameCounter++;
+			}
+			
+			//Main author: Tommy Chao
+			function redTileClicked(){
+				this.style.backgroundColor="red";
+				this.removeEventListener("click", redTileClicked);
+				if (gamemode!=1){
+					alert("You lose... You hit "+classicGameCounter+" black tiles! \n Your time was "+sec+"."+millisec+mmmsec+"''.");
+				}else {
+					alert("You lose... You hit "+classicGameCounter+" pairs of black tiles! \n Your time was "+sec+"."+millisec+mmmsec+"''.");
+				}
+				document.getElementById("display").style.backgroundColor="khaki";
+				resetStyleTops();
+				resetTimer();
+				resetAllTiles();
+				if (gamemode==1){
+					startDoubleGame();
+				}else if (gamemode==2){
+					startLettersGame();
+				}else{
+					startClassicGame();
+				}
+			}
+			
+			//Main author: Tommy Chao
+			function moveDisplayDownAndCheckWin(){
+				moveDisplayDownCounter=0;
+				moveDisplayDownTimer = setInterval(function(){
+					rowHolder.style.top = parseInt(rowHolder.style.top)+15+"px";
+					moveDisplayDownCounter++
+					if(moveDisplayDownCounter==10){
+						clearInterval(moveDisplayDownTimer);
+						checkForWin();
+					}
+					//alert(moveDisplayDownCounter);
+				}, 1);
+			}
+			
+			//Main author: Tommy Chao
+			function checkForWin(){
+				if(classicGameCounter==30){ //this number is number of tiles needed to win, to change this, you have to change all the "if(classicGameCounter<[number])" in the row1BlackTileClicked(), row2BlackTileClicked(), row3... functions
+					var time = sec+"."+millisec+mmmsec;
+					if (gamemode==0){
+						alert("Congratulations! You beat classic mode! \n Your time was "+sec+"."+millisec+mmmsec+"''.");
+						if ((time < parseFloat(document.getElementById("bestClassicTime").innerHTML))||(document.getElementById("bestClassicTime").innerHTML=="")){
+							document.getElementById("bestClassicTime").innerHTML=" "+time+"''";
+						}
+					}else if (gamemode==1){
+						alert("Congratulations! You beat double tiles mode! \n Your time was "+sec+"."+millisec+mmmsec+"''.");
+						if ((time < parseFloat(document.getElementById("bestDoubleTime").innerHTML))||(document.getElementById("bestDoubleTime").innerHTML=="")){
+							document.getElementById("bestDoubleTime").innerHTML=" "+time+"''";
+						}
+					}else if (gamemode==2){
+						alert("Congratulations! You beat letters mode! \n Your time was "+sec+"."+millisec+mmmsec+"''.");
+						if ((time < parseFloat(document.getElementById("bestLettersTime").innerHTML))||(document.getElementById("bestLettersTime").innerHTML=="")){
+							document.getElementById("bestLettersTime").innerHTML=" "+time+"''";
+						}
+					}else{
+						alert("Congratulations! You beat switch mode! \n Your time was "+sec+"."+millisec+mmmsec+"''.");
+						if ((time < parseFloat(document.getElementById("bestSwitchTime").innerHTML))||(document.getElementById("bestSwitchTime").innerHTML=="")){
+							document.getElementById("bestSwitchTime").innerHTML=" "+time+"''";
+						}
+					}
+					document.getElementById("display").style.backgroundColor="khaki";
+					resetStyleTops();
+					resetTimer();
+					resetAllTiles();
+					if (gamemode==1){
+						startDoubleGame();
+					}else if (gamemode==2){
+						startLettersGame();
+					}else{
+						startClassicGame();
+					}
+				}
+			}
+			
+			//moved timer function to the top
+			
+			var rowAtBottom=0;
+			var currentRowKeyCode;
+
+			function row1TilePressed(e){
+				//console.log("position of row1 is " + (parseInt(row1.style.top))+"px");
+				if (e.keyCode==currentRowKeyCode){
+					if(classicGameCounter==0){
+						if (gamemode!=1){
+							startTimer();
+						}
+					}
+					document.getElementById("tile1" + currentRowBlackTile).style.backgroundColor="gray";
+					document.getElementById("tile1" + currentRowBlackTile).removeEventListener("click", row1BlackTileClicked);
+					if (gamemode!=1){
+						increaseClassicGameCounter();
+						if(classicGameCounter!=1){
+							row5.style.top = (parseInt(row5.style.top)-750)+"px" //moves row to the top
+							resetRow5Tiles();
+							if(classicGameCounter<29){
+								makeNewRow5BlackTile();
+							}
+						}else {
+							document.getElementById("display").style.backgroundColor="white";
+						}
+						randomizeRow2();
+						moveDisplayDownAndCheckWin();
+					}else {
+						if ((document.getElementById("tile11").style.backgroundColor!="black")&&(document.getElementById("tile12").style.backgroundColor!="black")&&(document.getElementById("tile13").style.backgroundColor!="black")&&(document.getElementById("tile14").style.backgroundColor!="black")){
+							increaseClassicGameCounter();
+							if(classicGameCounter!=1){
+								row5.style.top = (parseInt(row5.style.top)-750)+"px" //moves row to the top
+								resetRow5Tiles();
+								if(classicGameCounter<29){
+									makeNewRow5BlackTile();
+								}
+							}else {
+								document.getElementById("display").style.backgroundColor="white";
+							}
+							randomizeRow2();
+							moveDisplayDownAndCheckWin();
+						}
+					}
+				}else if (e.keyCode == 70){
+					redTilePressed(1, e.keyCode);
+				}
+				else if (e.keyCode == 71){
+					redTilePressed(1, e.keyCode);
+				}
+				else if (e.keyCode == 72){
+					redTilePressed(1, e.keyCode);
+				}
+				else if (e.keyCode == 74){
+					redTilePressed(1, e.keyCode);
+				}
+			}
+			
+			function row2TilePressed(e){	
+				//console.log("position of row2 is " + (parseInt(row2.style.top))+"px");
+					////alert("currentRowKeyCode is " + currentRowKeyCode);
+					//console.log("currentRowKeyCode is " + currentRowKeyCode);
+					//console.log("keyPressed is " + e.keyCode);
+				//console.log("position of row2 is " + (parseInt(row2.style.top))+"px");
+				if (e.keyCode==currentRowKeyCode){
+					document.getElementById("tile2" + currentRowBlackTile).style.backgroundColor="gray";
+					document.getElementById("tile2" + currentRowBlackTile).removeEventListener("click", row2BlackTileClicked);
+					increaseClassicGameCounter();
+					row1.style.top = (parseInt(row1.style.top)-750)+"px" //moves row to the top
+					resetRow1Tiles();
+					if(classicGameCounter<25){
+						makeNewRow1BlackTile();
+					}
+					randomizeRow3();
+					moveDisplayDownAndCheckWin();
+				}else if (e.keyCode == 70){
+					redTilePressed(2, e.keyCode);
+				}
+				else if (e.keyCode == 71){
+					redTilePressed(2, e.keyCode);
+				}
+				else if (e.keyCode == 72){
+					redTilePressed(2, e.keyCode);
+				}
+				else if (e.keyCode == 74){
+					redTilePressed(2, e.keyCode);
+				}
+			}
+			
+			function row3TilePressed(e){
+				//console.log("currentRowKeyCode is " + currentRowKeyCode);
+				//console.log("keyPressed is " + e.keyCode);			
+				//console.log("position of row3 is " + (parseInt(row3.style.top))+"px");
+				if (e.keyCode==currentRowKeyCode){
+					document.getElementById("tile3" + currentRowBlackTile).style.backgroundColor="gray";
+					document.getElementById("tile3" + currentRowBlackTile).removeEventListener("click", row3BlackTileClicked);
+					increaseClassicGameCounter();
+					row2.style.top = (parseInt(row2.style.top)-750)+"px" //moves row to the top
+					resetRow2Tiles();
+					if(classicGameCounter<26){
+						makeNewRow2BlackTile();
+					}
+					randomizeRow4();
+					moveDisplayDownAndCheckWin();
+				}else if (e.keyCode == 70){
+					redTilePressed(3, e.keyCode);
+				}
+				else if (e.keyCode == 71){
+					redTilePressed(3, e.keyCode);
+				}
+				else if (e.keyCode == 72){
+					redTilePressed(3, e.keyCode);
+				}
+				else if (e.keyCode == 74){
+					redTilePressed(3, e.keyCode);
+				}
+			}
+			
+			function row4TilePressed(e){
+				//console.log("currentRowKeyCode is " + currentRowKeyCode);		
+				//console.log("keyPressed is " + e.keyCode);
+				//console.log("position of row4 is " + (parseInt(row4.style.top))+"px");
+				if (e.keyCode==currentRowKeyCode){
+					document.getElementById("tile4" + currentRowBlackTile).style.backgroundColor="gray";
+					document.getElementById("tile4" + currentRowBlackTile).removeEventListener("click", row4BlackTileClicked);
+					increaseClassicGameCounter();
+					row3.style.top = (parseInt(row3.style.top)-750)+"px" //moves row to the top
+					resetRow3Tiles();
+					if(classicGameCounter<27){
+						makeNewRow3BlackTile();
+					}
+					randomizeRow5();
+					moveDisplayDownAndCheckWin();
+				}else if (e.keyCode == 70){
+					redTilePressed(4, e.keyCode);
+				}
+				else if (e.keyCode == 71){
+					redTilePressed(4, e.keyCode);
+				}
+				else if (e.keyCode == 72){
+					redTilePressed(4, e.keyCode);
+				}
+				else if (e.keyCode == 74){
+					redTilePressed(4, e.keyCode);
+				}
+			}
+			
+			function row5TilePressed(e){	
+			//console.log(". is " + currentRowKeyCode);	
+			//console.log("keyPressed is " + e.keyCode);			
+				//console.log("position of row5 is " + (parseInt(row5.style.top))+"px");
+				if (e.keyCode==currentRowKeyCode){
+					document.getElementById("tile5" + currentRowBlackTile).style.backgroundColor="gray";
+					document.getElementById("tile5" + currentRowBlackTile).removeEventListener("click", row5BlackTileClicked);
+					increaseClassicGameCounter();
+					row4.style.top = (parseInt(row4.style.top)-750)+"px" //moves row to the top
+					rowAtBottom=rowAtBottom-750;
+					resetRow4Tiles();
+					if(classicGameCounter<28){
+						makeNewRow4BlackTile();
+					}
+					if (classicGameCounter<30){
+						randomizeRow1();
+					}
+					moveDisplayDownAndCheckWin();
+				}else if (e.keyCode == 70){
+					redTilePressed(5, e.keyCode);
+				}
+				else if (e.keyCode == 71){
+					redTilePressed(5, e.keyCode);
+				}
+				else if (e.keyCode == 72){
+					redTilePressed(5, e.keyCode);
+				}
+				else if (e.keyCode == 74){
+					redTilePressed(5, e.keyCode);
+				}
+			}
+			
+			function redTilePressed(tileNum, keyCode){
+				var redTile;
+				if (keyCode == 70){
+					redTile = 1;
+				}
+				else if (keyCode == 71){
+					redTile = 2;
+				}
+				else if (keyCode == 72){
+					redTile = 3;
+				}
+				else if (keyCode == 74){
+					redTile = 4;
+				}
+				document.getElementById("tile"+tileNum+redTile).style.backgroundColor="red";
+				alert("You lose... You hit "+classicGameCounter+" black tiles! \n Your time was "+sec+"."+millisec+mmmsec+"''.");
+				document.getElementById("display").style.backgroundColor="khaki";
+				resetStyleTops();
+				resetTimer();
+				resetAllTiles();
+				if (gamemode==1){
+					startDoubleGame();
+				}else if (gamemode==2){
+					startLettersGame();
+				}else{
+					startClassicGame();
+				}
+			}
+			
+			function handleKeyDown(e){
+				if (e.keyCode==49){
+					gamemode=0;
+					startClassicGame();
+				}else if (e.keyCode==50){
+					gamemode=1;
+					startDoubleGame();
+				}else if (e.keyCode==51){
+					gamemode=2;
+					startLettersGame();
+				}else if (e.keyCode==52){
+					gamemode=3;
+					startClassicGame();
+				}else{
+					if((parseInt(row1.style.top))==rowAtBottom && document.getElementById("tile11").style.backgroundColor!="gray" && document.getElementById("tile12").style.backgroundColor!="gray" && document.getElementById("tile13").style.backgroundColor!="gray" && document.getElementById("tile14").style.backgroundColor!="gray"){
+						//alert("currentRowBlackTile is " + currentRowBlackTile + " in row1");
+						row1TilePressed(e);
+					}
+					
+					else if((parseInt(row2.style.top))==rowAtBottom&& document.getElementById("tile21").style.backgroundColor!="gray" && document.getElementById("tile22").style.backgroundColor!="gray" && document.getElementById("tile23").style.backgroundColor!="gray" && document.getElementById("tile24").style.backgroundColor!="gray"){
+						//alert("currentRowBlackTile is " + currentRowBlackTile + " in row2");
+						row2TilePressed(e);
+					}
+					
+					else if((parseInt(row3.style.top))==rowAtBottom && document.getElementById("tile31").style.backgroundColor!="gray" && document.getElementById("tile32").style.backgroundColor!="gray" && document.getElementById("tile33").style.backgroundColor!="gray" && document.getElementById("tile34").style.backgroundColor!="gray"){
+						//alert("currentRowBlackTile is " + currentRowBlackTile + " in row3");
+						row3TilePressed(e);
+					}
+					
+					else if((parseInt(row4.style.top))==rowAtBottom && document.getElementById("tile41").style.backgroundColor!="gray" && document.getElementById("tile42").style.backgroundColor!="gray" && document.getElementById("tile43").style.backgroundColor!="gray" && document.getElementById("tile44").style.backgroundColor!="gray"){
+						//alert("currentRowBlackTile is " + currentRowBlackTile + " in row4");
+						row4TilePressed(e);
+					}
+					
+					else if((parseInt(row5.style.top))==rowAtBottom && document.getElementById("tile51").style.backgroundColor!="gray" && document.getElementById("tile52").style.backgroundColor!="gray" && document.getElementById("tile53").style.backgroundColor!="gray" && document.getElementById("tile54").style.backgroundColor!="gray"){
+						//alert("currentRowBlackTile is " + currentRowBlackTile + " in row5");
+						row5TilePressed(e);
+					}
+				}
+			}   	
+        </script>
+        <style type="text/css">
+			*{
+				font-weight: bold;
+				font-family: Arial;
+				background-color:#fffacd;
+			}
+			
+			#instructions{
+				position:absolute;
+				left:-50%
+				float:left;
+				text-align:center;
+				word-wrap: break-word;
+				width:400px;
+			}
+			
+			#scoreboard {
+				position:absolute;
+				left:22%;
+				top:17%;
+				font-size:18px;
+			}
+			
+			#classicTimesDiv{
+				border:1px solid black;
+				text-align:center;
+				background-color:lightCoral;
+				padding:2px;
+			}
+			
+			#bestClassicTime{
+				background-color:lightCoral;
+			}
+			
+			#doubleTimesDiv{
+				border:1px solid black;
+				text-align:center;
+				background-color:gold;
+				padding:2px;
+			}
+			
+			#bestDoubleTime{
+				background-color:gold;
+			}
+			
+			#lettersTimesDiv{
+				border:1px solid black;
+				text-align:center;
+				background-color:paleGreen;
+				padding:2px;
+			}
+			
+			#bestLettersTime{
+				background-color:paleGreen;
+			}
+			
+			#switchTimesDiv{
+				border:1px solid black;
+				text-align:center;
+				background-color:paleTurquoise;
+				padding:2px;
+			}
+			
+			#bestSwitchTime{
+				background-color:paleTurquoise;
+			}
+			
+			#display {
+				position:relative;
+				border:1px solid #424242;
+				background-color:#f0e68c;
+				width:400px;
+				height:600px;
+				margin:auto;
+				z-index: 1;
+			}
+			.row {
+				position:relative;
+			    box-sizing:border-box;
+				background-color:green;
+				width:400px;
+				height:150px;
+			}
+			
+			.tile {
+				box-sizing:border-box;
+				float:left;
+				border:1px solid #424242;
+				background-color:white;
+				width:100px;
+				height:150px;
+                color: white;
+                text-align: center;
+                font-size: 30px;
+                padding: 25px;
+				padding-top: 60px;
+			}
+			
+			#score {
+				position:absolute;
+				left:15%;
+			}
+			
+			#rowHolder {
+				position:relative;
+				top:-300px;
+			}
+			
+			#timer {
+				position: absolute;
+				margin:auto;
+				text-align: center;
+				color: red;
+				font-size: 25px; 
+				font-weight: bold;
+				z-index: 2;
+				top:-100px;
+				height:100px;
+				width:400px;
+			}
+			
+			#tile11 {
+				background-color:white;
+			}
+			
+			#tile12 {
+				background-color:white;
+			}
+			
+			#tile13 {
+				background-color:white;
+			}
+			
+			#tile14 {
+				background-color:white;
+			}
+			
+			#tile21 {
+				background-color:white;
+			}
+			
+			#tile22 {
+				background-color:white;
+			}
+			
+			#tile23 {
+				background-color:white;
+			}
+			
+			#tile24 {
+				background-color:white;
+			}
+			
+			#tile31 {
+				background-color:white;
+			}
+			
+			#tile32 {
+				background-color:white;
+			}
+			
+			#tile33 {
+				background-color:white;
+			}
+			
+			#tile34 {
+				background-color:white;
+			}
+			
+			#tile41 {
+				background-color:white;
+			}
+			
+			#tile42 {
+				background-color:white;
+			}
+			
+			#tile43 {
+				background-color:white;
+			}
+			
+			#tile44 {
+				background-color:white;
+			}
+			
+			#tile51 {
+				background-color:white;
+			}
+			
+			#tile52 {
+				background-color:white;
+			}
+			
+			#tile53 {
+				background-color:white;
+			}
+			
+			#tile54 {
+				background-color:white;
+			}        
+        </style>
+    </head>
+    <body onkeydown="handleKeyDown(event)">
+        <input id="startClassicGameButton" type="button" value="Classic Mode (1)" onclick="gamemode=0; startClassicGame();">
+        <input id="startDoubleGameButton" type="button" value="Double Tiles Mode (2)" onclick="gamemode=1; startDoubleGame();">
+        <input id="startLettersGameButton" type="button" value="Letters Mode (3)" onclick="gamemode=2; startLettersGame();">
+        <input id="startSwitchGameButton" type="button" value="Switch Mode (4)" onclick="gamemode=3; startClassicGame();">
+		<h1><div id="score"></div></h1><!-- this is just a place holder-->
+		<span id="instructions">Instructions:<br><br>Welcome to Piano Tiles! There are four different game modes to our special edition of Piano Tiles. All game modes consist of 30 rows of tiles. Use the <u>"fghj"</u> keys or 
+			click each black tile to play.
+			<br><br><u>Classic Mode:</u> Starting at the bottom, click/press all of the black tiles while avoiding all of the white tiles. More tiles will appear as you click/press them.
+			<br><br><u>Double Mode:</u> Press every PAIR of black tiles while avoiding all of the white tiles.
+			<br><br><u>Letters Mode:</u> Press all of the black tiles according to the letter indicated on the tile. Pressing any other letter will result in a loss.
+			<br><br><u>Switch Mode:</u> Click/press all of the black tiles while avoiding all of the white tiles. HOWEVER, every time you press a black tile, the next black tile has a chance to switch to a different column, so watch out!
+			<br><br>Aim for the lowest times possible and have fun!</span>
+        <div id="display">
+			<div id="timer"><br><br><span id="seconds">0</span>.<span id="millisec">0</span><span id="mmmsec">0</span>"</div>
+			<div id="rowHolder">
+				<div class="row" id="row5">
+					<div class="tile" id="tile51"></div>
+					<div class="tile" id="tile52"></div>
+					<div class="tile" id="tile53"></div>
+					<div class="tile" id="tile54"></div>
+				</div>
+				<div class="row" id="row4">
+					<div class="tile" id="tile41"></div>
+					<div class="tile" id="tile42"></div>
+					<div class="tile" id="tile43"></div>
+					<div class="tile" id="tile44"></div>
+				</div>
+				<div class="row" id="row3">
+					<div class="tile" id="tile31"></div>
+					<div class="tile" id="tile32"></div>
+					<div class="tile" id="tile33"></div>
+					<div class="tile" id="tile34"></div>
+				</div>
+				<div class="row" id="row2">
+					<div class="tile" id="tile21"></div>
+					<div class="tile" id="tile22"></div>
+					<div class="tile" id="tile23"></div>
+					<div class="tile" id="tile24"></div>
+				</div>
+				<div class="row" id="row1">
+					<div class="tile" id="tile11"></div>
+					<div class="tile" id="tile12"></div>
+					<div class="tile" id="tile13"></div>
+					<div class="tile" id="tile14"></div>
+				</div>
+			</div>
+        </div>
+		<div id="scoreboard"><br>
+			<div id="classicTimesDiv">Classic Mode Best Time:<span id="bestClassicTime"></span></div><br>
+			<div id="doubleTimesDiv">Double Mode Best Time:<span id="bestDoubleTime"></span></div><br>
+			<div id="lettersTimesDiv">Letters Mode Best Time:<span id="bestLettersTime"></span></div><br>
+			<div id="switchTimesDiv">Switch Mode Best Time:<span id="bestSwitchTime"></span></div>
+		</div>
+    </body>
+</html>
